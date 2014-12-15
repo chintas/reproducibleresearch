@@ -1,42 +1,53 @@
----
-title: "Reproducible Research Course Project 1"
-output:
-  html_document:
-    keep_md: yes
----
+# Reproducible Research Course Project 1
 
 #### Step 1. Loading and preprocessing the data
 
-```{r}
+
+```r
 act.df <- read.csv("activity.csv",header = TRUE, na.strings = "NA",stringsAsFactors = FALSE)
 ```
 
 #### Step 2. What is mean total number of steps taken per day?
 1. Make a histogram of the total number of steps taken each day 
 
-```{r}
+
+```r
 # Clean up NAs and calculate sum of steps per day
 act.sum.df <- aggregate(steps ~ date, data = act.df, sum,na.action = na.omit)
 
 # Histogram of the total number of steps taken each day
 hist(act.sum.df$steps, main="Histogram of total number of steps per day", xlab="Total number of steps per day")
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
 2. Calculate and report the mean and median total number of steps taken per day
 
-```{r}
+
+```r
 # Mean of the total number of steps taken per day
 mean(act.sum.df$steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 # Median of the total number of steps taken per day
 median(act.sum.df$steps)
 ```
-*So the mean and median of the total number of steps taken per day are `r floor(mean(act.sum.df$steps))` and `r median(act.sum.df$steps)` respectively*
+
+```
+## [1] 10765
+```
+*So the mean and median of the total number of steps taken per day are 1.0766\times 10^{4} and 10765 respectively*
 
 #### Step 3. What is the average daily activity pattern?
 1. Make a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
 
 
-```{r}
+
+```r
 # aggregate steps as interval to get average number of steps in an interval across all days
 act.clean.df <- act.df[complete.cases(act.df),]
 act.int.df <- aggregate(steps ~ interval, act.clean.df , mean)
@@ -48,9 +59,12 @@ plot(act.int.df$interval, act.int.df$steps, type='l', col=1,
      ylab="Average number of steps")
 ```
 
+![](./PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 # find row id of maximum average number of steps in an interval
 max.avg.steps.df<- which.max(act.int.df$steps)
 
@@ -58,22 +72,33 @@ max.avg.steps.df<- which.max(act.int.df$steps)
 act.int.df [max.avg.steps.df, ]
 ```
 
+```
+##     interval    steps
+## 104      835 206.1698
+```
+
 ### Step 4. Imputing missing values
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs).
 
-```{r}
+
+```r
 # get rows with NA's
 df.NA <- act.df[!complete.cases(act.df),]
 
 # number of rows
 nrow(df.NA)
 ```
+
+```
+## [1] 2304
+```
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in
 
-```{r}
+
+```r
 # perform the imputation
 for (i in 1:nrow(act.df)){
   if (is.na(act.df$steps[i])){
@@ -91,25 +116,46 @@ table_date_steps_imputed <- aggregate(steps ~ date, act.df, sum)
 hist(table_date_steps_imputed$steps,  main="(Imputed) Histogram of total number of steps per day", xlab="Total number of steps in a day")
 ```
 
+![](./PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
-```{r}
+
+```r
 # get mean and median of total number of steps per day
 mean(table_date_steps_imputed$steps)
-
 ```
 
-```{r}
+```
+## [1] 10766.19
+```
+
+
+```r
 # get mean and median of total number of steps per day
 median(table_date_steps_imputed$steps)
-
 ```
 
-```{r}
+```
+## [1] 10766.19
+```
+
+
+```r
 # Mean of the total number of steps taken per day
 mean(act.sum.df$steps)
+```
 
+```
+## [1] 10766.19
+```
+
+```r
 # Median of the total number of steps taken per day
 median(act.sum.df$steps)
+```
+
+```
+## [1] 10765
 ```
 
 *Due to data imputation, the means remain same whereas there is slight change in median value.*
@@ -118,7 +164,8 @@ median(act.sum.df$steps)
 
 1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 # convert date from string to Date class
 act.df$date <- as.Date(act.df$date)
 
@@ -144,8 +191,11 @@ table_interval_steps_imputed <- aggregate(steps ~ interval+day_type, act.df, mea
 
 2. Make a panel plot containing a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r}
+
+```r
 # make the panel plot for weekdays and weekends
 library(ggplot2)
 qplot(interval, steps, data=table_interval_steps_imputed, geom=c("line"), xlab="Interval", ylab="Number of steps", main="") + facet_wrap(~ day_type, ncol=1)
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
