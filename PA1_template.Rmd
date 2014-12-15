@@ -89,3 +89,61 @@ table_date_steps_imputed <- aggregate(steps ~ date, act.df, sum)
 hist(table_date_steps_imputed$steps,  main="(Imputed) Histogram of total number of steps per day", xlab="Total number of steps in a day")
 ```
 
+4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```{r}
+# get mean and median of total number of steps per day
+mean(table_date_steps_imputed$steps)
+
+```
+
+```{r}
+# get mean and median of total number of steps per day
+median(table_date_steps_imputed$steps)
+
+```
+
+```{r}
+# Mean of the total number of steps taken per day
+mean(act.sum.df$steps)
+
+# Median of the total number of steps taken per day
+median(act.sum.df$steps)
+```
+
+*Due to data imputation, the means remain same whereas there is slight change in median value.*
+
+### Step 5. Are there differences in activity patterns between weekdays and weekends?
+
+1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+```{r}
+# convert date from string to Date class
+act.df$date <- as.Date(act.df$date)
+
+# add a new column indicating day of the week 
+act.df$day <- weekdays(act.df$date)
+
+# add a new column called day type and initialize to weekday
+act.df$day_type <- c("weekday")
+
+# If day is Saturday or Sunday, make day_type as weekend
+for (i in 1:nrow(act.df)){
+  if (act.df$day[i] == "Saturday" || act.df$day[i] == "Sunday"){
+    act.df$day_type[i] <- "weekend"
+  }
+}
+
+# convert day_time from character to factor
+act.df$day_type <- as.factor(act.df$day_type)
+
+# aggregate steps as interval to get average number of steps in an interval across all days
+table_interval_steps_imputed <- aggregate(steps ~ interval+day_type, act.df, mean)
+```
+
+2. Make a panel plot containing a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```{r}
+# make the panel plot for weekdays and weekends
+library(ggplot2)
+qplot(interval, steps, data=table_interval_steps_imputed, geom=c("line"), xlab="Interval", ylab="Number of steps", main="") + facet_wrap(~ day_type, ncol=1)
+```
